@@ -112,11 +112,6 @@ public/                玩家與管理台前端
 
 ## 管理員帳號
 
-主控（管理台）的帳號密碼寫在專案根目錄的 `.env`：
-
-```bash
-cp .env.example .env
-```
 
 ```ini
 ADMIN_USER=admin
