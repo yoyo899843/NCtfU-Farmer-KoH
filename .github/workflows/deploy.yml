@@ -13,7 +13,7 @@ env:
 
 jobs:
   deploy:
-    runs-on: [self-hosted, nctfu-server]
+    runs-on: self-hosted
     steps:
       - name: Pull
         run: |
