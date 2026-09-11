@@ -2,7 +2,7 @@ services:
   farmer-game:
     build: .
     ports:
-      - "7000:3000"
+      - "6000:3000"
     environment:
       ADMIN_USER: "${ADMIN_USER:-admin}"
       ADMIN_PASSWORD: "${ADMIN_PASSWORD:-change-me}"
