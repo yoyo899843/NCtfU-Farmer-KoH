@@ -4,16 +4,16 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>NCtfU 農場</title>
-  <link rel="icon" type="image/png" href="/small_logo.png">
+  <link rel="icon" type="image/jpeg" href="/white_base_logo.jpg">
   <style>
     :root {
       --cream: #f4f5ed;
       --panel: #ffffff;
-      --line: #d9dfcf;
-      --ink: #17251a;
-      --muted: #526055;
-      --green: #5e7d51;
-      --green-soft: #e5f0df;
+      --line: #d5dce4;
+      --ink: #1f2a38;
+      --muted: #526276;
+      --green: #42566e;
+      --green-soft: #e7edf3;
       --soil: #d2b48c;
       --soil-line: #9b754e;
       --gold: #b4881f;
@@ -31,7 +31,7 @@
     /* 標題列：左邊標題，右邊活動狀態 */
     .topbar {
       display: flex; align-items: center; justify-content: space-between; gap: 12px;
-      background: linear-gradient(180deg, #6b8c5c, #55744a);
+      background: #42566e;
       color: #fff; border-radius: 12px; padding: 14px 18px; margin-bottom: 14px;
     }
     .brand { display: flex; align-items: center; gap: 12px; }
@@ -41,7 +41,7 @@
     /* 活動狀態（標題列右側）*/
     .status { text-align: right; line-height: 1.35; }
     #phase-label { display: block; font-size: 1.05rem; font-weight: 700; }
-    #phase-countdown { font-size: .9rem; color: #dbe7d2; font-variant-numeric: tabular-nums; }
+    #phase-countdown { font-size: .9rem; color: #e4ebf3; font-variant-numeric: tabular-nums; }
 
     /* 公告區 */
     #announcements-panel { border-left: 6px solid var(--gold); margin-bottom: 14px; }
@@ -77,7 +77,7 @@
 
     /* 購物中心：買／賣分頁 */
     .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 12px; }
-    .tabs button { background: #f1f3ea; border-color: var(--line); }
+    .tabs button { background: #f1f4f7; border-color: var(--line); }
     .tabs button[aria-selected="true"] { background: var(--green); border-color: var(--green); color: #fff; }
     .shop-row, .stock-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; }
     .shop-row:last-child, .stock-row:last-child { border-bottom: 0; }
@@ -86,7 +86,7 @@
 
     /* 排行榜 */
     .ranks { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 14px; }
-    .rank-round { background: var(--green-soft); border-color: #c3d8b6; }
+    .rank-round { background: var(--green-soft); border-color: #c5d0dc; }
     .rank-total { background: var(--gold-soft); border-color: #e6d4a3; }
     .ranks ol { margin: 0; padding-left: 22px; }
     .ranks li { padding: 5px 0; font-size: 1.05rem; }
