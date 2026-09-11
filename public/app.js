@@ -244,7 +244,7 @@ function say(message) { $('notice').textContent = message; }
 $('tab-buy').addEventListener('click', () => showShopTab('buy'));
 $('tab-sell').addEventListener('click', () => showShopTab('sell'));
 
-$('logout-player').addEventListener('click', () => {
+function showLoggedOut() {
   localStorage.removeItem(sessionKey);
   session = null;
   player = null;
@@ -254,6 +254,23 @@ $('logout-player').addEventListener('click', () => {
   $('pin').value = '';
   $('login-error').textContent = '';
   $('nickname').focus();
+}
+
+$('logout-player').addEventListener('click', async () => {
+  const token = session?.token;
+  showLoggedOut();
+  if (!token) return;
+  try {
+    await fetch('/api/logout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token }),
+      keepalive: true
+    });
+  } catch (_error) {
+    // The local logout has already completed. A network error should not trap
+    // the user on the game screen.
+  }
 });
 
 $('register').addEventListener('click', async () => {

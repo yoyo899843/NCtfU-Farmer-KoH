@@ -9,7 +9,7 @@ const { log } = require('../log');
 const announcements = require('../announcements');
 const { publicGameState, isRoundActive } = require('../roundState');
 const {
-  players, safePlayer, getPlayer, activePlayerByNickname, findAccount, createPlayer, cumulativeTotals
+  players, safePlayer, getPlayer, logoutPlayer, activePlayerByNickname, findAccount, createPlayer, cumulativeTotals
 } = require('../players');
 
 const router = express.Router();
@@ -51,6 +51,15 @@ router.post('/api/register', (req, res) => {
 
   const player = createPlayer(nickname, pin, account);
   res.json({ token: player.token, player: safePlayer(player) });
+});
+
+router.post('/api/logout', (req, res) => {
+  const token = typeof req.body?.token === 'string' ? req.body.token : '';
+  const player = logoutPlayer(token);
+  log('logout', { nickname: player?.nickname || null, ok: Boolean(player) });
+  // Logging out is idempotent: a repeated request still leaves the browser in
+  // the desired logged-out state.
+  res.json({ ok: true });
 });
 
 router.get('/api/me', (req, res) => {

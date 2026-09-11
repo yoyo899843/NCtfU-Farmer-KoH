@@ -20,6 +20,7 @@ const accountStatements = {
 const plantingStatements = {
   forToken: db.prepare('SELECT plot_index, planted_at FROM plantings WHERE token = ?'),
   upsert: db.prepare('INSERT OR REPLACE INTO plantings (token, plot_index, seedtype, planted_at) VALUES (?, ?, ?, ?)'),
+  moveToken: db.prepare('UPDATE plantings SET token = ? WHERE token = ?'),
   remove: db.prepare('DELETE FROM plantings WHERE token = ? AND plot_index = ?'),
   clear: db.prepare('DELETE FROM plantings')
 };
@@ -65,6 +66,20 @@ function safePlayer(player) {
 
 function getPlayer(token) {
   return typeof token === 'string' ? players.get(token) : undefined;
+}
+
+// Revoke the browser's current token without discarding this round's progress.
+// A later nickname + PIN login finds the still-seated player and receives the
+// replacement token.
+function logoutPlayer(token) {
+  const player = getPlayer(token);
+  if (!player) return null;
+  const nextToken = crypto.randomBytes(18).toString('hex');
+  db.transaction(() => plantingStatements.moveToken.run(nextToken, token))();
+  players.delete(token);
+  player.token = nextToken;
+  players.set(nextToken, player);
+  return player;
 }
 
 function activePlayerByNickname(nickname) {
@@ -134,6 +149,7 @@ module.exports = {
   cumulativeTotals,
   safePlayer,
   getPlayer,
+  logoutPlayer,
   activePlayerByNickname,
   findAccount,
   createPlayer,
