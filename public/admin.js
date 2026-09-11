@@ -201,7 +201,7 @@ $('save-settings').addEventListener('click', async () => {
   }
 });
 $('start-event').addEventListener('click', () => {
-  if (confirm('這會把所有玩家的累計分數歸零，確定要開始新活動嗎？')) control('/api/admin/start');
+  if (confirm('這會永久刪除所有玩家帳號、PIN、分數與本局資料，確定要開始新活動嗎？')) control('/api/admin/start');
 });
 $('resume-event').addEventListener('click', () => control('/api/admin/resume'));
 $('end-round').addEventListener('click', () => control('/api/admin/end-round'));

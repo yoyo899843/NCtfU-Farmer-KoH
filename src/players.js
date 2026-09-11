@@ -13,7 +13,7 @@ const accountStatements = {
   find: db.prepare('SELECT nickname, pin, total_score FROM accounts WHERE nickname = ?'),
   insert: db.prepare('INSERT INTO accounts (nickname, pin, total_score, rounds_played, updated_at) VALUES (?, ?, 0, 0, ?)'),
   saveScore: db.prepare('UPDATE accounts SET total_score = ?, rounds_played = rounds_played + 1, updated_at = ? WHERE nickname = ?'),
-  clearScores: db.prepare('UPDATE accounts SET total_score = 0, rounds_played = 0, updated_at = ?'),
+  removeAll: db.prepare('DELETE FROM accounts'),
   all: db.prepare('SELECT nickname, total_score FROM accounts')
 };
 
@@ -99,8 +99,12 @@ function persistRoundScore(player, at) {
   accountStatements.saveScore.run(player.totalScore, at, player.nickname);
 }
 
-function clearAllCumulativeScores() {
-  accountStatements.clearScores.run(Date.now());
+function clearAllPlayers() {
+  db.transaction(() => {
+    plantingStatements.clear.run();
+    accountStatements.removeAll.run();
+  })();
+  players.clear();
 }
 
 // 總排行讀資料庫，所以已經離開的玩家仍會留在榜上；還在場的人則把本局尚未
@@ -134,5 +138,5 @@ module.exports = {
   findAccount,
   createPlayer,
   persistRoundScore,
-  clearAllCumulativeScores
+  clearAllPlayers
 };

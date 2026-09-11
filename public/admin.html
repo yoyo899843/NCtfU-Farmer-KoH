@@ -76,14 +76,14 @@
     <section>
       <h2>活動控制</h2>
       <div class="controls">
-        <button id="start-event" class="danger">開始新活動（清空累計）</button>
+        <button id="start-event" class="danger">開始新活動（清除玩家）</button>
         <button id="resume-event">接續開始（保留累計）</button>
         <button id="end-round">提早結算本局</button>
         <button id="next-round">提早開始下一局</button>
         <button id="end-event" class="danger">結束活動</button>
       </div>
       <p class="notice" id="notice" role="status"></p>
-      <p class="small">累計分數存在 SQLite，重新啟動伺服器不會消失。「開始新活動」會把所有人的累計分數歸零；伺服器重開後想接續原本的累計，請用「接續開始」。每局開始都會重置金錢、種子、作物與田地。</p>
+      <p class="small">累計分數存在 SQLite，重新啟動伺服器不會消失。「開始新活動」會刪除所有玩家帳號、PIN、分數與本局資料；伺服器重開後想接續原本的玩家與累計，請用「接續開始」。每局開始都會重置金錢、種子、作物與田地。</p>
     </section>
 
     <section>

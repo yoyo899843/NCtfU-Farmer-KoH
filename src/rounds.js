@@ -10,7 +10,7 @@ const settings = require('./settings');
 const { log } = require('./log');
 const { gameState } = require('./roundState');
 const {
-  players, plantings, resetPlayerForRound, persistRoundScore, clearAllCumulativeScores
+  players, plantings, resetPlayerForRound, persistRoundScore, clearAllPlayers
 } = require('./players');
 
 let transitionTimer = null;
@@ -57,11 +57,9 @@ function finishRound() {
 
 function startEvent() {
   clearTransitionTimer();
-  for (const player of players.values()) {
-    player.totalScore = 0;
-    player.lastRoundScore = 0;
-  }
-  clearAllCumulativeScores();
+  // A new event is a true clean slate: remove player accounts, PINs, scores,
+  // live sessions and planting rows. Admin accounts/settings/announcements stay.
+  clearAllPlayers();
   gameState.roundNumber = 0;
   log('event_started', {});
   beginRound();
