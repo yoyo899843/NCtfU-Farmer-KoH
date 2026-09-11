@@ -1,0 +1,7 @@
+node_modules/
+.env
+activity.log
+farmer.sqlite
+farmer.sqlite-shm
+farmer.sqlite-wal
+.DS_Store

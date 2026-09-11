@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>NCtfU 加分彩蛋</title>
+  <style>
+    :root {
+      --cream: #f4f5ed; --panel: #fff; --line: #d9dfcf; --ink: #17251a;
+      --muted: #526055; --green: #5e7d51; --green-soft: #e5f0df; --gold: #b4881f;
+      font-family: system-ui, "Noto Sans TC", sans-serif; color: var(--ink); background: var(--cream);
+    }
+    * { box-sizing: border-box; }
+    body { max-width: 640px; margin: 0 auto; padding: 24px; text-align: center; }
+    .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 24px; }
+    h1 { font-size: 1.4rem; margin: 0 0 6px; }
+    .lead { color: var(--muted); margin: 0 0 20px; font-size: .95rem; }
+
+    /* 點擊區。要換 logo 只需改 <img> 的 src，顯示尺寸由下面的 CSS 控制。 */
+    #logo-button {
+      position: relative; display: inline-block; padding: 0; border: 0; background: none;
+      cursor: pointer; line-height: 0; border-radius: 20px;
+      transition: transform .08s ease, filter .15s ease;
+    }
+    #logo-button:hover { filter: brightness(1.06); }
+    #logo-button:active { transform: scale(.94); }
+    #logo-button:disabled { cursor: not-allowed; filter: grayscale(1); opacity: .5; }
+    #logo-button img { display: block; width: 240px; max-width: 70vw; height: auto; }
+    .tap-hint { display: block; margin-top: 10px; font-size: .9rem; color: var(--muted); letter-spacing: 4px; }
+
+    .scores { display: flex; justify-content: center; gap: 28px; margin: 22px 0 6px; }
+    .scores div { min-width: 100px; }
+    .scores span { display: block; font-size: .85rem; color: var(--muted); }
+    .scores strong { font-size: 1.8rem; font-variant-numeric: tabular-nums; }
+
+    #notice { min-height: 1.5em; color: #92400e; margin: 10px 0 0; }
+    .hint { font-size: .85rem; color: var(--muted); margin-top: 18px; }
+    a { color: #075985; }
+
+    /* 每點一下冒出一個 +1 */
+    .pop {
+      position: absolute; left: 50%; top: 10%; transform: translateX(-50%);
+      font-weight: 700; font-size: 1.5rem; color: var(--gold);
+      pointer-events: none; animation: rise .7s ease-out forwards;
+    }
+    @keyframes rise {
+      to { transform: translate(-50%, -60px); opacity: 0; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .pop { animation: none; opacity: 0; }
+      #logo-button:active { transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="panel">
+    <h1>你好強</h1>
+
+    <button id="logo-button" title="點一下加 1 分">
+      <img src="/NCtfU_logo_blue.png" alt="NCtfU">
+      <span class="tap-hint">你可以戳戳看我們的社團 logo</span>
+    </button>
+
+    <div class="scores">
+      <div><span>本局分數</span><strong id="score">—</strong></div>
+      <div><span>累計分數</span><strong id="cumulative">—</strong></div>
+    </div>
+    <p id="who" class="lead"></p>
+    <p id="notice" role="status"></p>
+
+    <p class="hint">用你在遊戲裡的同一個帳號。<a href="/">回到農場</a></p>
+  </div>
+
+  <script>
+    const sessionKey = 'ctf-farmer-session-v1';
+    const $ = (id) => document.getElementById(id);
+    const session = JSON.parse(localStorage.getItem(sessionKey) || 'null');
+    const button = $('logo-button');
+
+    function say(message) { $('notice').textContent = message; }
+
+    function showScores(player) {
+      $('score').textContent = player.score.toLocaleString();
+      $('cumulative').textContent = player.cumulativeScore.toLocaleString();
+    }
+
+    function popPlusOne() {
+      const pop = document.createElement('span');
+      pop.className = 'pop';
+      pop.textContent = '+1';
+      button.appendChild(pop);
+      setTimeout(() => pop.remove(), 700);
+    }
+
+    async function load() {
+      if (!session?.token) {
+        button.disabled = true;
+        return say('還沒有帳號。請先回農場建立暱稱與 PIN，再回到這一頁。');
+      }
+      try {
+        const response = await fetch(`/api/me?token=${encodeURIComponent(session.token)}`);
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || '讀取失敗。');
+        $('who').textContent = `農夫 ${data.player.nickname}`;
+        showScores(data.player);
+      } catch (error) {
+        button.disabled = true;
+        say(`${error.message} 請回農場重新建立帳號。`);
+      }
+    }
+
+    // 伺服器回 429 時在這裡倒數，時間到才把按鈕解開。
+    let cooldownTimer = null;
+    function startCooldown(seconds) {
+      let left = seconds;
+      button.disabled = true;
+      const tick = () => {
+        if (left <= 0) {
+          clearInterval(cooldownTimer);
+          cooldownTimer = null;
+          button.disabled = false;
+          return say('');
+        }
+        say(`點太快了，冷卻中：${left} 秒`);
+        left -= 1;
+      };
+      tick();
+      cooldownTimer = setInterval(tick, 1000);
+    }
+
+    button.addEventListener('click', async () => {
+      if (!session?.token || cooldownTimer) return;
+      try {
+        const response = await fetch('/api/bonus', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: session.token })
+        });
+        const data = await response.json();
+        if (response.status === 429) return startCooldown(data.retryAfter || 30);
+        if (!response.ok) throw new Error(data.error || '加分失敗。');
+        showScores(data);
+        popPlusOne();
+        say('');
+      } catch (error) { say(error.message); }
+    });
+
+    load();
+  </script>
+</body>
+</html>

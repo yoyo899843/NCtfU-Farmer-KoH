@@ -1,0 +1,10 @@
+services:
+  farmer-game:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      ADMIN_USER: "${ADMIN_USER:-admin}"
+      ADMIN_PASSWORD: "${ADMIN_PASSWORD:-change-me}"
+      ROUND_SECONDS: "${ROUND_SECONDS:-600}"
+      BREAK_SECONDS: "${BREAK_SECONDS:-60}"

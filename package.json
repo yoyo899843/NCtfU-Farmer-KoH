@@ -1,0 +1,16 @@
+{
+  "name": "ctf-farmer-game",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A deliberately vulnerable farming game for an internal security workshop.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "add-admin": "node scripts/add-admin.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^13.0.3",
+    "express": "^4.21.2"
+  }
+}
