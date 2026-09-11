@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>NCtfU 農場</title>
+  <link rel="icon" type="image/png" href="/small_logo.png">
   <style>
     :root {
       --cream: #f4f5ed;
@@ -35,8 +36,7 @@
     }
     .brand { display: flex; align-items: center; gap: 12px; }
     .topbar h1 { margin: 0; font-size: 1.5rem; letter-spacing: .06em; }
-    /* logo 佔位：想換成圖片就把這個 span 換成 <img src="/logo.png" alt="NCtfU"> */
-    .logo { width: 34px; height: 34px; display: grid; place-items: center; font-size: 1.3rem; background: rgba(255,255,255,.18); border-radius: 8px; }
+    .logo { width: 38px; height: 38px; display: block; object-fit: contain; padding: 3px; background: #fff; border-radius: 8px; }
 
     /* 活動狀態（標題列右側）*/
     .status { text-align: right; line-height: 1.35; }
@@ -106,7 +106,7 @@
 <body>
   <div class="topbar">
     <div class="brand">
-      <span class="logo" aria-hidden="true">🌾</span>
+      <img class="logo" src="/small_logo.png" alt="NCtfU logo">
       <h1>NCtfU 農場</h1>
     </div>
     <div class="status">
