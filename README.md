@@ -40,6 +40,29 @@ ipconfig
 
 假設結果是 `192.168.1.23`，請玩家在瀏覽器開啟：`http://192.168.1.23:3000`。
 
+## GitHub Actions 部署
+
+Workflow 位於 `.github/workflows/deploy.yml`，推送到 `master` 或在 Actions 頁面手動執行時觸發，跑在**自架 runner**（`[self-hosted, ncu-web server]`）上，流程是：在伺服器上 `git pull` → `docker compose up -d --build --remove-orphans` → 確認 app 真的活著。
+
+沒有 SSH／rsync，也**不需要任何 GitHub Secrets**——runner 本來就在那台機器上。
+
+### 伺服器上要先準備好
+
+```bash
+git clone <repo> /home/yoyo/NCtfU-Farmer-Game
+cd /home/yoyo/NCtfU-Farmer-Game
+cp .env.example .env          # 填入管理台帳密
+```
+
+部署目錄寫在 workflow 最上面的 `env.DEPLOY_DIR`，要換路徑改那一行即可。該機器需要 Docker 與 Docker Compose plugin，runner 帳號要有執行 Docker 的權限。
+
+### 幾個刻意的設計
+
+- **管理台帳密讀伺服器上的 `.env`**，不從 GitHub Secrets 注入。`.env` 在 `.gitignore` 裡，`git pull` 不會覆蓋它，compose 會自動帶進容器；密碼因此不會出現在 workflow log，也不必存進 GitHub。
+- **不另外執行 migration**。schema 升級已經在容器啟動流程裡（`src/db.js` 在 require 階段就跑完，失敗直接 `process.exit(1)`），單獨跑反而會出現「新程式已在服務、schema 還沒更新」的空窗。
+- **最後一步會輪詢 `/api/game-state`**（最多 30 次、每次間隔 2 秒）。migration 失敗時容器起不來，這一步會讓整個 deploy 紅掉並印出最後 50 行 log；少了它，失敗會完全無聲。這個 app 沒有 `/health`，用這支免 token 的端點代替。
+- **資料不會因為重新部署而消失**。`farmer-data` named volume 保存 SQLite 與 `activity.log`，`--build` 不會動到它。真的要連帳號一起清空才用 `docker compose down -v`。
+
 ## 重置活動
 
 本局進行中的金錢、種子、作物與田地只存在伺服器記憶體，按 `Ctrl+C` 停止服務就會消失。但**玩家帳號（暱稱＋PIN）與累計分數存在 SQLite `farmer.sqlite`，重新啟動不會清空**——這是刻意的，主辦筆電中途當掉也不會讓大家的累計歸零。
@@ -48,6 +71,7 @@ ipconfig
 
 - 在管理台按「開始新活動（清空累計）」，把所有人的累計分數歸零（帳號與 PIN 保留）。
 - 停掉服務並刪除 `farmer.sqlite`（連同 `farmer.sqlite-wal`、`farmer.sqlite-shm`），連帳號一起清空。
+- Docker 部署若要連帳號與 log 一起完整清除，可在確認活動資料不再需要後執行 `docker compose down -v`；這會刪除 `farmer-data` volume，無法由應用程式復原。
 
 API 呼叫紀錄會持續附加在 `activity.log`，可在下一場活動前手動刪除該檔案。
 

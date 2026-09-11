@@ -1,0 +1,42 @@
+name: deploy
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy
+
+env:
+  DEPLOY_DIR: /home/nctfu/NCtfU-Farmer-KoH
+
+jobs:
+  deploy:
+    runs-on: [self-hosted, nctfu-server]
+    steps:
+      - name: Pull
+        run: |
+          cd "$DEPLOY_DIR"
+          git pull --ff-only
+
+      - name: Compose up
+        run: |
+          cd "$DEPLOY_DIR"
+          docker compose up -d --build --remove-orphans
+
+      - name: Verify app is healthy
+        run: |
+          cd "$DEPLOY_DIR"
+          for i in $(seq 1 30); do
+            if docker compose exec -T farmer-game node -e \
+                 "require('http').get('http://localhost:3000/api/game-state', r => process.exit(r.statusCode===200?0:1)).on('error', () => process.exit(1))" 2>/dev/null; then
+              echo "farmer-game: healthy"
+              docker compose ps
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "farmer-game: 啟動失敗，最後 50 行 log："
+          docker compose logs --tail=50 farmer-game
+          exit 1

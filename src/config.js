@@ -30,7 +30,7 @@ module.exports = {
   ROOT_DIR,
   PUBLIC_DIR: path.join(ROOT_DIR, 'public'),
   DB_FILE: process.env.DB_FILE || path.join(ROOT_DIR, 'farmer.sqlite'),
-  LOG_FILE: path.join(ROOT_DIR, 'activity.log'),
+  LOG_FILE: process.env.LOG_FILE || path.join(ROOT_DIR, 'activity.log'),
 
   PORT: Number(process.env.PORT || 3000),
 

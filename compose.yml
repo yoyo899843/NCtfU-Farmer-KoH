@@ -8,3 +8,10 @@ services:
       ADMIN_PASSWORD: "${ADMIN_PASSWORD:-change-me}"
       ROUND_SECONDS: "${ROUND_SECONDS:-600}"
       BREAK_SECONDS: "${BREAK_SECONDS:-60}"
+      DB_FILE: "/app/data/farmer.sqlite"
+      LOG_FILE: "/app/data/activity.log"
+    volumes:
+      - farmer-data:/app/data
+
+volumes:
+  farmer-data:
