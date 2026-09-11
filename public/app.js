@@ -118,9 +118,24 @@ function showShopTab(which) {
 
 async function updateLeaderboard() {
   const data = await (await fetch('/api/leaderboard')).json();
-  const rows = (entries) => entries.length ? entries.map((entry) => `<li>${entry.nickname} — ${entry.score.toLocaleString()} 分</li>`).join('') : '<li>尚無玩家</li>';
-  $('round-leaderboard').innerHTML = rows(data.roundLeaderboard);
-  $('cumulative-leaderboard').innerHTML = rows(data.cumulativeLeaderboard);
+  const renderRows = (list, entries) => {
+    list.replaceChildren();
+    if (entries.length === 0) {
+      const empty = document.createElement('li');
+      empty.textContent = '尚無玩家';
+      list.append(empty);
+      return;
+    }
+    for (const entry of entries) {
+      const row = document.createElement('li');
+      // Nicknames are player-controlled. Keep them as text so leaderboard
+      // updates cannot turn a stored nickname into executable HTML.
+      row.textContent = `${entry.nickname} — ${entry.score.toLocaleString()} 分`;
+      list.append(row);
+    }
+  };
+  renderRows($('round-leaderboard'), data.roundLeaderboard);
+  renderRows($('cumulative-leaderboard'), data.cumulativeLeaderboard);
   $('player-count').textContent = `${data.playerCount} / ${data.maxPlayers} 位玩家`;
 }
 
