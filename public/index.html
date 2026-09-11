@@ -73,7 +73,9 @@
     .stat { display: flex; align-items: baseline; justify-content: space-between; padding: 6px 0; }
     .stat + .stat { border-top: 1px dashed var(--line); }
     .stat b { font-size: 1.25rem; font-variant-numeric: tabular-nums; }
-    #welcome { display: block; font-size: 1.2rem; font-weight: 700; margin-bottom: 8px; }
+    .player-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+    #welcome { display: block; font-size: 1.2rem; font-weight: 700; }
+    #logout-player { padding: 5px 10px; font-size: .85rem; background: #fff; }
 
     /* 購物中心：買／賣分頁 */
     .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 12px; }
@@ -138,7 +140,10 @@
 
       <div class="side">
         <section id="player-panel" class="panel">
-          <strong id="welcome"></strong>
+          <div class="player-heading">
+            <strong id="welcome"></strong>
+            <button id="logout-player" type="button">登出</button>
+          </div>
           <div class="stat"><span>金錢</span><b><span id="money">0</span> 元</b></div>
           <div class="stat"><span>本局分數</span><b id="score">0</b></div>
           <div class="stat"><span>累計分數</span><b id="cumulative-score">0</b></div>

@@ -229,6 +229,18 @@ function say(message) { $('notice').textContent = message; }
 $('tab-buy').addEventListener('click', () => showShopTab('buy'));
 $('tab-sell').addEventListener('click', () => showShopTab('sell'));
 
+$('logout-player').addEventListener('click', () => {
+  localStorage.removeItem(sessionKey);
+  session = null;
+  player = null;
+  delete window.player;
+  $('game').style.display = 'none';
+  $('login').style.display = 'block';
+  $('pin').value = '';
+  $('login-error').textContent = '';
+  $('nickname').focus();
+});
+
 $('register').addEventListener('click', async () => {
   const nickname = $('nickname').value;
   const pin = $('pin').value;
