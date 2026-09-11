@@ -26,26 +26,6 @@ docker compose up --build
 ROUND_SECONDS=300 BREAK_SECONDS=30 docker compose up --build
 ```
 
-## 讓同一個 Wi-Fi 的玩家連線
-
-先確認所有人都在同一個 Wi-Fi，並允許 macOS/Windows 防火牆讓 Node.js 接受區域網路連線。查詢主機 IP：
-
-```bash
-# macOS（通常 Wi-Fi 是 en0）
-ipconfig getifaddr en0
-
-# Windows PowerShell
-ipconfig
-```
-
-假設結果是 `192.168.1.23`，請玩家在瀏覽器開啟：`http://192.168.1.23:3000`。
-
-## GitHub Actions 部署
-
-Workflow 位於 `.github/workflows/deploy.yml`，推送到 `master` 或在 Actions 頁面手動執行時觸發，跑在**自架 runner**（`[self-hosted, ncu-web server]`）上，流程是：在伺服器上 `git pull` → `docker compose up -d --build --remove-orphans` → 確認 app 真的活著。
-
-沒有 SSH／rsync，也**不需要任何 GitHub Secrets**——runner 本來就在那台機器上。
-
 ### 伺服器上要先準備好
 
 ```bash
