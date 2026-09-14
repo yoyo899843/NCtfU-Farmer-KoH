@@ -76,7 +76,7 @@ function renderPlots() {
     .join('');
   $('hidden-plots').innerHTML = player.plots
     .slice(visibleCount)
-    .map((plot, offset) => plotTile(plot, visibleCount + offset, `實驗田 ${offset + 1}`))
+    .map((plot, offset) => plotTile(plot, visibleCount + offset, `田地 ${offset + 1}`))
     .join('');
   updateCropTimers();
 }

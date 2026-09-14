@@ -181,19 +181,12 @@
           </div>
           <div id="shop" role="tabpanel"></div>
           <div id="stock" role="tabpanel" hidden></div>
-          <p class="small">購買會開新分頁顯示結果，回來後自動同步。</p>
         </section>
       </div>
     </div>
-
-    <!--
-      這一區刻意用 hidden 屬性藏起來。hidden 只是「叫瀏覽器不要畫出來」，不是
-      存取控制：在開發人員工具把這個屬性刪掉就看得到，而且伺服器本來就收這些
-      田地的編號，種下去一樣會計分。JS 不會去動這個屬性，刪掉之後不會被加回來。
-    -->
     <section id="hidden-farm-panel" class="panel" hidden>
-      <h2>實驗農地</h2>
-      <p class="small">這塊地沒有畫在正常畫面上，但它是真的——種下去照樣結算、照樣算分。</p>
+      <h2>其他田地</h2>
+      <p class="small">台灣土地這麼貴你還可以一次擁有十六塊土地，好羨慕這麼有錢</p>
       <div class="plots plots-hidden" id="hidden-plots"></div>
     </section>
 

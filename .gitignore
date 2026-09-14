@@ -5,3 +5,5 @@ farmer.sqlite
 farmer.sqlite-shm
 farmer.sqlite-wal
 .DS_Store
+.claude
+.codex
