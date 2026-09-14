@@ -44,7 +44,10 @@ label.field { display: flex; align-items: center; gap: 6px; }
 label.field input { width: 96px; }
 .small { font-size: .85rem; color: var(--muted); }
 
-#admin-panel { display: none; }
+/* 登入前只露出標題與登入表單：控制台、導覽列、標題列上的連結與登出鍵
+   一律預設隱藏，登入成功後才由 common.js 顯示。預設就藏起來（而不是
+   載入後再用 JS 藏）才不會先閃一下功能列。 */
+#admin-panel, #admin-nav, #topbar-actions { display: none; }
 
 /* 清單（公告與玩家共用骨架）*/
 .record-list { list-style: none; margin: 12px 0 0; padding: 0; }

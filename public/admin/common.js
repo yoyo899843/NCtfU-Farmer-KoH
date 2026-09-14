@@ -32,8 +32,12 @@ function forgetSession() {
   localStorage.removeItem(tokenStorage);
 }
 
+// 登入畫面是獨立的：除了標題與登入表單，不露出任何可以點的東西
+// （導覽列、前往玩家頁面、登出鍵都收起來）。
 function showLogin(message = '') {
   $('admin-panel').style.display = 'none';
+  $('admin-nav').style.display = 'none';
+  $('topbar-actions').style.display = 'none';
   $('admin-login').style.display = 'block';
   $('login-error').textContent = message;
   for (const fn of logoutCallbacks) fn();
@@ -42,6 +46,8 @@ function showLogin(message = '') {
 function showPanel(gameState) {
   $('admin-login').style.display = 'none';
   $('admin-panel').style.display = 'block';
+  $('admin-nav').style.display = 'flex';
+  $('topbar-actions').style.display = 'flex';
   for (const fn of readyCallbacks) fn(gameState);
 }
 
