@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>登入 — NCtfU 農場管理台</title>
+  <link rel="icon" type="image/jpeg" href="/images/white_base_logo.jpg">
+  <link rel="stylesheet" href="/admin/style.css">
+</head>
+<body>
+  <!-- 獨立的登入頁：除了登入表單本身，沒有任何導覽列、連結或功能按鈕。 -->
+  <div class="topbar">
+    <h1>NCtfU 農場管理台</h1>
+  </div>
+
+  <div class="login-only">
+    <section>
+      <h2>管理員登入</h2>
+      <div class="login-row">
+        <input id="admin-user" type="text" placeholder="帳號" autocomplete="username">
+        <input id="admin-password" type="password" placeholder="密碼" autocomplete="current-password">
+        <button id="login" class="primary">登入</button>
+      </div>
+      <p><label class="remember"><input id="remember" type="checkbox"> 記住此瀏覽器</label></p>
+      <p class="notice" id="login-error" role="alert"></p>
+    </section>
+  </div>
+
+  <script src="/admin/login.js"></script>
+</body>
+</html>

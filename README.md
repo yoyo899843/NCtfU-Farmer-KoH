@@ -101,8 +101,9 @@ public/
   extrabigbonus.html           robots.txt 洩漏的隱藏加分頁
   robots.txt
   admin/                       管理台，資料夾結構對齊 /admin/* 網址
-    style.css                  三頁共用樣式
-    common.js                  三頁共用的登入閘門與 session
+    style.css                  共用樣式
+    login.html · login.js      /admin/login　獨立登入頁，沒有任何導覽或功能按鈕
+    common.js                  三個功能頁共用的門禁：驗 session，沒過就轉去登入頁
     control.html · control.js  /admin　活動控制與時間設定
     player.html · player.js    /admin/player　玩家帳號管理
     announcement.html · .js    /admin/announcement　公告管理

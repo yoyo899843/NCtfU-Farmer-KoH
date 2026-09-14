@@ -1,16 +1,37 @@
 /*
- * 管理台三個頁面共用的：登入閘門、session token、POST 包裝、登出。
+ * 管理台三個功能頁共用的門禁與工具。
  *
- * 每個頁面自己的 script 用 Admin.onReady(fn) 註冊「登入完成後要做的事」，
- * 用 Admin.onLogout(fn) 註冊「退回登入畫面時要收拾的事」（例如停掉輪詢）。
+ * 登入表單不在這裡——它有自己的獨立頁面 /admin/login。這支的職責是：
+ * 頁面一載入就驗證 session，沒過就把人轉去登入頁；過了才把控制台、導覽列
+ * 與標題列上的按鈕顯示出來（這三塊在 CSS 裡預設隱藏，所以未登入者不會
+ * 先閃一下功能列）。
+ *
+ * 每個頁面自己的 script 用 Admin.onReady(fn) 註冊「登入確認後要做的事」。
  * 這支必須在頁面自己的 script 之前載入。
  */
 const tokenStorage = 'ctf-farmer-admin-token';
+const LOGIN_PAGE = '/admin/login';
 const $ = (id) => document.getElementById(id);
 
 let adminToken = '';
 const readyCallbacks = [];
 const logoutCallbacks = [];
+
+function storedToken() {
+  return localStorage.getItem(tokenStorage) || sessionStorage.getItem(tokenStorage);
+}
+
+function forgetSession() {
+  adminToken = '';
+  localStorage.removeItem(tokenStorage);
+  sessionStorage.removeItem(tokenStorage);
+}
+
+// 轉去登入頁，並記住原本想去哪一頁，登入後可以直接回來。
+function goToLogin() {
+  for (const fn of logoutCallbacks) fn();
+  location.replace(`${LOGIN_PAGE}?next=${encodeURIComponent(location.pathname)}`);
+}
 
 async function post(path, body) {
   const response = await fetch(path, {
@@ -27,88 +48,51 @@ async function post(path, body) {
   return data;
 }
 
-function forgetSession() {
-  adminToken = '';
-  localStorage.removeItem(tokenStorage);
-}
-
-// 登入畫面是獨立的：除了標題與登入表單，不露出任何可以點的東西
-// （導覽列、前往玩家頁面、登出鍵都收起來）。
-function showLogin(message = '') {
-  $('admin-panel').style.display = 'none';
-  $('admin-nav').style.display = 'none';
-  $('topbar-actions').style.display = 'none';
-  $('admin-login').style.display = 'block';
-  $('login-error').textContent = message;
-  for (const fn of logoutCallbacks) fn();
-}
-
-function showPanel(gameState) {
-  $('admin-login').style.display = 'none';
-  $('admin-panel').style.display = 'block';
-  $('admin-nav').style.display = 'flex';
-  $('topbar-actions').style.display = 'flex';
-  for (const fn of readyCallbacks) fn(gameState);
-}
-
-// 每個頁面都會重複「401 就退回登入、其他錯誤就顯示在該區塊」，收在這裡。
+// 每個頁面都會重複「401 就回登入頁、其他錯誤就顯示在該區塊」，收在這裡。
 function fail(error, noticeId) {
   if (error.status === 401) {
     forgetSession();
-    showLogin('登入已失效，請重新登入。');
+    goToLogin();
     return;
   }
   if (noticeId) $(noticeId).textContent = error.message;
 }
 
-async function login(username, password) {
-  try {
-    const data = await post('/api/admin/login', { username, password });
-    adminToken = data.token;
-    // 只記住 session token，密碼不會被存下來。
-    if ($('remember').checked) localStorage.setItem(tokenStorage, data.token);
-    $('admin-password').value = '';
-    showPanel(data.gameState);
-  } catch (error) {
-    forgetSession();
-    showLogin(error.message);
-  }
+function revealPanel() {
+  $('admin-panel').style.display = 'block';
+  $('admin-nav').style.display = 'flex';
+  $('topbar-actions').style.display = 'flex';
 }
 
-$('login').addEventListener('click', () => login($('admin-user').value, $('admin-password').value));
-for (const id of ['admin-user', 'admin-password']) {
-  $(id).addEventListener('keydown', (event) => {
-    if (event.key === 'Enter') login($('admin-user').value, $('admin-password').value);
-  });
-}
 $('logout').addEventListener('click', async () => {
   const token = adminToken;
   forgetSession();
-  showLogin('已登出。');
   try { await post('/api/admin/logout', { token }); } catch (_error) { /* 本來就沒了 */ }
+  location.replace(LOGIN_PAGE);
 });
 
 window.Admin = {
   $,
   post,
   fail,
-  showLogin,
   forgetSession,
+  goToLogin,
   token: () => adminToken,
   onReady: (fn) => readyCallbacks.push(fn),
   onLogout: (fn) => logoutCallbacks.push(fn)
 };
 
-// 用記住的 token 續用登入；伺服器重開過的話會失敗，退回登入畫面。
+// 門禁：沒有有效的 session 就不讓這一頁顯示出來。
 (async () => {
-  const savedToken = localStorage.getItem(tokenStorage);
-  if (!savedToken) return;
+  const saved = storedToken();
+  if (!saved) return goToLogin();
   try {
-    const data = await post('/api/admin/session', { token: savedToken });
-    adminToken = savedToken;
-    $('remember').checked = true;
-    showPanel(data.gameState);
+    const data = await post('/api/admin/session', { token: saved });
+    adminToken = saved;
+    revealPanel();
+    for (const fn of readyCallbacks) fn(data.gameState);
   } catch (_error) {
     forgetSession();
+    goToLogin();
   }
 })();
