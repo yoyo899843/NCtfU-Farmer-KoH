@@ -19,11 +19,13 @@ const durationSetting = (value, fallback, minimum) => {
 // Prices are deliberately also sent by the browser to /buy_seed.  This is the
 // intended CTF exercise, not a pattern for real applications.
 const SEEDS = {
-  radish: { name: '小蘿蔔', price: 10, growSeconds: 10, score: 1 },
-  carrot: { name: '胡蘿蔔', price: 50, growSeconds: 30, score: 3 },
-  corn: { name: '玉米', price: 100, growSeconds: 60, score: 5 },
-  pumpkin: { name: '南瓜', price: 500, growSeconds: 300, score: 10 },
-  goldenRice: { name: '黃金稻米', price: 10000, growSeconds: 3600, score: 15 }
+// image 是圖檔的檔名（不含副檔名），對應 public/images/seeds|harvest/<image>.png。
+// 它跟種子代號刻意分開：goldenRice 的圖檔叫 rice.png。
+  tomato: { name: '番茄', price: 10, growSeconds: 10, score: 1, image: 'tomato' },
+  carrot: { name: '胡蘿蔔', price: 50, growSeconds: 30, score: 3, image: 'carrot' },
+  corn: { name: '玉米', price: 100, growSeconds: 60, score: 5, image: 'corn' },
+  pumpkin: { name: '南瓜', price: 500, growSeconds: 300, score: 10, image: 'pumpkin' },
+  goldenRice: { name: '黃金稻米', price: 10000, growSeconds: 3600, score: 15, image: 'rice' }
 };
 
 // 看得到的 2×2，加上前端用 hidden 屬性藏起來的 4×4。伺服器只認 PLOT_COUNT，

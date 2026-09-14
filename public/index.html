@@ -55,12 +55,27 @@
     .layout { display: grid; grid-template-columns: 1.55fr 1fr; gap: 14px; align-items: start; }
     .side { display: grid; gap: 14px; }
 
-    /* 農地 */
+    /* 農地：土地底圖用 Farm.jpg */
     .plots { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
     .plot {
+      position: relative; overflow: hidden;
       aspect-ratio: 1 / 1; min-height: 150px; padding: 12px;
-      background: var(--soil); border: 3px solid var(--soil-line); border-radius: 10px;
+      background: var(--soil) url('/images/Farm.jpg') center / cover no-repeat;
+      border: 3px solid var(--soil-line); border-radius: 10px;
       display: flex; flex-direction: column; justify-content: space-between; gap: 6px;
+    }
+    /* 作物圖擺正中央當底層，文字與按鈕浮在上面 */
+    .crop-img {
+      position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+      width: 58%; max-width: 118px; aspect-ratio: 1 / 1; object-fit: contain;
+      pointer-events: none; z-index: 0;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, .35));
+    }
+    .plot > *:not(.crop-img) { position: relative; z-index: 1; }
+    /* 疊在照片上，所以文字要有底才看得清楚 */
+    .plot-label, .plot-crop, .crop-status {
+      align-self: flex-start; padding: 1px 7px; border-radius: 6px;
+      background: rgba(255, 255, 255, .82);
     }
     .plot-label { font-size: .8rem; color: #5c4324; letter-spacing: .08em; }
     .plot-crop { font-size: 1.2rem; font-weight: 700; }

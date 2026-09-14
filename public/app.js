@@ -61,7 +61,8 @@ function plotTile(plot, index, labelText) {
   const kind = seed(plot.seedtype);
   // plantedAt is intentionally exposed as a DOM data attribute so it can be
   // changed directly in DevTools. The server never validates elapsed time.
-  return `<article class="plot" data-plot-index="${index}" data-planted-at="${plot.plantedAt}" data-grow-seconds="${kind.growSeconds}">${label}<span class="plot-crop">${kind.name}</span><span class="crop-status"></span><button class="harvest-button" disabled>等待成熟</button></article>`;
+  // data-crop-image 讓 updateCropTimers 不用再查 config 就能換圖。
+  return `<article class="plot" data-plot-index="${index}" data-planted-at="${plot.plantedAt}" data-grow-seconds="${kind.growSeconds}" data-crop-image="${kind.image}">${label}<img class="crop-img" alt=""><span class="plot-crop">${kind.name}</span><span class="crop-status"></span><button class="harvest-button" disabled>等待成熟</button></article>`;
 }
 
 function renderPlots() {
@@ -91,6 +92,20 @@ function updateCropTimers() {
     const remaining = Math.max(0, Math.ceil((growMilliseconds - elapsed) / 1000));
     const status = plotElement.querySelector('.crop-status');
     const button = plotElement.querySelector('.harvest-button');
+    const image = plotElement.querySelector('.crop-img');
+
+    // 生長三階段：前半用種子圖、後半用發芽圖、時間到換成收成圖。
+    // 只有真的換階段時才寫 src，否則每秒重設會讓瀏覽器重新載入、畫面閃動。
+    // 這段一樣吃 DevTools 改過的 data-planted-at，改成 0 會直接跳到收成圖。
+    if (image) {
+      const crop = plotElement.dataset.cropImage;
+      const stage = mature
+        ? `/images/harvest/${crop}.png`
+        : elapsed >= growMilliseconds / 2
+          ? '/images/buds/bud.png'
+          : `/images/seeds/${crop}.png`;
+      if (image.getAttribute('src') !== stage) image.setAttribute('src', stage);
+    }
 
     if (gameState.phase !== 'round') {
       status.textContent = '目前不是比賽時間';
