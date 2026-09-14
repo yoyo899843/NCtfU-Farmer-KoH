@@ -3,7 +3,8 @@
  */
 const express = require('express');
 const {
-  SEEDS, MAX_PLAYERS, MAX_NICKNAME_LENGTH, STARTING_MONEY, STARTING_SCORE
+  SEEDS, MAX_PLAYERS, MAX_NICKNAME_LENGTH, STARTING_MONEY, STARTING_SCORE,
+  VISIBLE_PLOT_COUNT, HIDDEN_PLOT_COUNT, PLOT_COUNT
 } = require('../config');
 const { log } = require('../log');
 const announcements = require('../announcements');
@@ -15,7 +16,16 @@ const {
 const router = express.Router();
 
 router.get('/api/config', (_req, res) => {
-  res.json({ seeds: SEEDS, maxPlayers: MAX_PLAYERS, startingMoney: STARTING_MONEY, startingScore: STARTING_SCORE });
+  res.json({
+    seeds: SEEDS,
+    maxPlayers: MAX_PLAYERS,
+    startingMoney: STARTING_MONEY,
+    startingScore: STARTING_SCORE,
+    // 前端靠這兩個數字把田地切成「看得到的」與「藏起來的」兩區。
+    visiblePlotCount: VISIBLE_PLOT_COUNT,
+    hiddenPlotCount: HIDDEN_PLOT_COUNT,
+    plotCount: PLOT_COUNT
+  });
 });
 
 router.get('/api/game-state', (_req, res) => {

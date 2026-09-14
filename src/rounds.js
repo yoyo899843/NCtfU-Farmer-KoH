@@ -8,7 +8,7 @@
 const { MAX_POINTS } = require('./config');
 const settings = require('./settings');
 const { log } = require('./log');
-const { gameState } = require('./roundState');
+const { gameState, setRoundNumber } = require('./roundState');
 const {
   players, plantings, resetPlayerForRound, persistRoundScore, clearAllPlayers
 } = require('./players');
@@ -18,6 +18,12 @@ let transitionTimer = null;
 function clearTransitionTimer() {
   if (transitionTimer) clearTimeout(transitionTimer);
   transitionTimer = null;
+}
+
+// 任何「重新開始計時」的轉換都要把暫停快照清掉，免得舊的剩餘時間殘留下來。
+function clearPauseSnapshot() {
+  gameState.pausedFrom = null;
+  gameState.remainingMs = null;
 }
 
 function settleCurrentRound() {
@@ -31,12 +37,16 @@ function settleCurrentRound() {
   log('round_settled', { roundNumber: gameState.roundNumber });
 }
 
-function beginRound() {
+// advance=false 是給「接續開始」用的：重開後要接回原本的第 n 局，不是重新計數。
+// 休息結束的自動輪替與「提早開始下一局」都不帶參數，照常進位。
+function beginRound({ advance = true } = {}) {
   clearTransitionTimer();
+  clearPauseSnapshot();
   // 秒數在每局開始的當下才讀取，所以管理台改過的值會從下一局起生效。
   const durationSeconds = settings.roundSeconds();
   gameState.phase = 'round';
-  gameState.roundNumber += 1;
+  // 全新的資料庫接續時 roundNumber 還是 0，至少要從第 1 局開始。
+  setRoundNumber(advance ? gameState.roundNumber + 1 : Math.max(1, gameState.roundNumber));
   gameState.phaseEndsAt = Date.now() + durationSeconds * 1000;
   plantings.clearAll();
   for (const player of players.values()) resetPlayerForRound(player);
@@ -47,6 +57,7 @@ function beginRound() {
 function finishRound() {
   if (gameState.phase !== 'round') return;
   clearTransitionTimer();
+  clearPauseSnapshot();
   settleCurrentRound();
   const durationSeconds = settings.breakSeconds();
   gameState.phase = 'break';
@@ -57,28 +68,51 @@ function finishRound() {
 
 function startEvent() {
   clearTransitionTimer();
+  clearPauseSnapshot();
   // A new event is a true clean slate: remove player accounts, PINs, scores,
   // live sessions and planting rows. Admin accounts/settings/announcements stay.
   clearAllPlayers();
-  gameState.roundNumber = 0;
+  setRoundNumber(0);
   log('event_started', {});
   beginRound();
 }
 
-// A restart mid-event lands back in 'waiting'.  This resumes play without
-// wiping the cumulative scores that were just restored from SQLite.
+// 暫停：不算遊戲也不算休息。把剩餘時間凍結起來，計時器停掉，玩家資料一律不動
+// （帳號、累計分數、本局的錢與田地都原封不動）。暫停期間 isRoundActive() 為
+// false，所以買種子／種植／收成／販售都會被擋下。
+function pauseEvent() {
+  clearTransitionTimer();
+  gameState.pausedFrom = gameState.phase;
+  gameState.remainingMs = gameState.phaseEndsAt ? Math.max(0, gameState.phaseEndsAt - Date.now()) : null;
+  gameState.phase = 'paused';
+  gameState.phaseEndsAt = null;
+  log('event_paused', {
+    roundNumber: gameState.roundNumber,
+    from: gameState.pausedFrom,
+    remainingMs: gameState.remainingMs
+  });
+}
+
+// 繼續。兩種情況：
+//   1. 有暫停快照 → 真正的解凍：回到原本那個階段，用剩下的時間把計時器接回去，
+//      玩家的錢／種子／田地／本局分數完全不動。
+//   2. 沒有快照（伺服器中途重開過，快照只在記憶體）→ 退回「用同一個局數重開
+//      一局」，累計分數從 SQLite 接回來，但本局狀態會重置。
 function resumeEvent() {
   clearTransitionTimer();
-  log('event_resumed', { fromRound: gameState.roundNumber });
-  beginRound();
+  const { pausedFrom, remainingMs } = gameState;
+
+  if (pausedFrom && Number.isFinite(remainingMs)) {
+    gameState.phase = pausedFrom;
+    gameState.phaseEndsAt = Date.now() + remainingMs;
+    clearPauseSnapshot();
+    transitionTimer = setTimeout(pausedFrom === 'round' ? finishRound : beginRound, remainingMs);
+    log('event_resumed', { roundNumber: gameState.roundNumber, phase: gameState.phase, remainingMs, frozen: true });
+    return;
+  }
+
+  log('event_resumed', { fromRound: gameState.roundNumber, frozen: false });
+  beginRound({ advance: false });
 }
 
-function endEvent() {
-  clearTransitionTimer();
-  if (gameState.phase === 'round') settleCurrentRound();
-  gameState.phase = 'ended';
-  gameState.phaseEndsAt = null;
-  log('event_ended', { afterRound: gameState.roundNumber });
-}
-
-module.exports = { beginRound, finishRound, startEvent, resumeEvent, endEvent };
+module.exports = { beginRound, finishRound, startEvent, resumeEvent, pauseEvent };

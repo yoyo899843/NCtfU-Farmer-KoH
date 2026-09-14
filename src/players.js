@@ -14,7 +14,11 @@ const accountStatements = {
   insert: db.prepare('INSERT INTO accounts (nickname, pin, total_score, rounds_played, updated_at) VALUES (?, ?, 0, 0, ?)'),
   saveScore: db.prepare('UPDATE accounts SET total_score = ?, rounds_played = rounds_played + 1, updated_at = ? WHERE nickname = ?'),
   removeAll: db.prepare('DELETE FROM accounts'),
-  all: db.prepare('SELECT nickname, total_score FROM accounts')
+  all: db.prepare('SELECT nickname, total_score FROM accounts'),
+  // 後台清單刻意不撈 pin：明文 PIN 沒有理由送到管理台畫面上。
+  listAll: db.prepare('SELECT nickname, total_score, rounds_played FROM accounts ORDER BY total_score DESC, nickname'),
+  remove: db.prepare('DELETE FROM accounts WHERE nickname = ?'),
+  setPin: db.prepare('UPDATE accounts SET pin = ?, updated_at = ? WHERE nickname = ?')
 };
 
 const plantingStatements = {
@@ -22,6 +26,7 @@ const plantingStatements = {
   upsert: db.prepare('INSERT OR REPLACE INTO plantings (token, plot_index, seedtype, planted_at) VALUES (?, ?, ?, ?)'),
   moveToken: db.prepare('UPDATE plantings SET token = ? WHERE token = ?'),
   remove: db.prepare('DELETE FROM plantings WHERE token = ? AND plot_index = ?'),
+  removeForToken: db.prepare('DELETE FROM plantings WHERE token = ?'),
   clear: db.prepare('DELETE FROM plantings')
 };
 
@@ -122,6 +127,53 @@ function clearAllPlayers() {
   players.clear();
 }
 
+/* 以下三個是給管理台用的帳號管理。 */
+
+// 帳號清單，附上目前是否在線與本局分數（在線才有）。
+function listAccounts() {
+  const seated = new Map();
+  for (const player of players.values()) seated.set(player.nickname, player);
+  return accountStatements.listAll.all().map((row) => {
+    const live = seated.get(row.nickname);
+    return {
+      nickname: row.nickname,
+      totalScore: row.total_score,
+      roundsPlayed: row.rounds_played,
+      online: Boolean(live),
+      roundScore: live ? live.score : null
+    };
+  });
+}
+
+// 刪帳號連同還在線上的 session 與種植資料一起清掉。對方下一次呼叫 API 會拿到
+// 401，瀏覽器就自己退回登入畫面。
+function deleteAccount(nickname) {
+  const name = typeof nickname === 'string' ? nickname.trim() : '';
+  if (!name) throw new Error('請指定要刪除的暱稱。');
+  const seated = activePlayerByNickname(name);
+  const removed = db.transaction(() => {
+    if (seated) plantingStatements.removeForToken.run(seated.token);
+    return accountStatements.remove.run(name).changes;
+  })();
+  if (removed === 0 && !seated) throw new Error(`找不到玩家 ${name}。`);
+  if (seated) players.delete(seated.token);
+  return { nickname: name, wasOnline: Boolean(seated) };
+}
+
+// 忘記 PIN 的人由主辦方給一組新的；還在線上的話記憶體那份也要同步。
+function setAccountPin(nickname, pin) {
+  const name = typeof nickname === 'string' ? nickname.trim() : '';
+  const next = String(pin ?? '');
+  if (!name) throw new Error('請指定暱稱。');
+  if (!/^\d{6}$/.test(next)) throw new Error('PIN 必須是 6 位數字。');
+  if (accountStatements.setPin.run(next, Date.now(), name).changes === 0) {
+    throw new Error(`找不到玩家 ${name}。`);
+  }
+  const seated = activePlayerByNickname(name);
+  if (seated) seated.pin = next;
+  return { nickname: name, wasOnline: Boolean(seated) };
+}
+
 // 總排行讀資料庫，所以已經離開的玩家仍會留在榜上；還在場的人則把本局尚未
 // 結算的分數即時加上去。
 function cumulativeTotals() {
@@ -154,5 +206,8 @@ module.exports = {
   findAccount,
   createPlayer,
   persistRoundScore,
-  clearAllPlayers
+  clearAllPlayers,
+  listAccounts,
+  deleteAccount,
+  setAccountPin
 };

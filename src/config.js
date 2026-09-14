@@ -26,6 +26,11 @@ const SEEDS = {
   goldenRice: { name: '黃金稻米', price: 10000, growSeconds: 3600, score: 15 }
 };
 
+// 看得到的 2×2，加上前端用 hidden 屬性藏起來的 4×4。伺服器只認 PLOT_COUNT，
+// 完全不在乎 UI 有沒有把後面那 16 格畫出來——這正是這一關要教的事。
+const VISIBLE_PLOT_COUNT = 4;
+const HIDDEN_PLOT_COUNT = 16;
+
 module.exports = {
   ROOT_DIR,
   PUBLIC_DIR: path.join(ROOT_DIR, 'public'),
@@ -42,7 +47,9 @@ module.exports = {
   MAX_PHASE_SECONDS: 7200,
 
   MAX_PLAYERS: 50,
-  PLOT_COUNT: 4,
+  VISIBLE_PLOT_COUNT,
+  HIDDEN_PLOT_COUNT,
+  PLOT_COUNT: VISIBLE_PLOT_COUNT + HIDDEN_PLOT_COUNT,
   MAX_NICKNAME_LENGTH: 20,
   MAX_BUY_COUNT: 99,
   STARTING_MONEY: 100,

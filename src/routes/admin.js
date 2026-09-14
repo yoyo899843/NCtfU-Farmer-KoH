@@ -10,7 +10,8 @@ const { admins, adminSessions } = require('../admins');
 const settings = require('../settings');
 const announcements = require('../announcements');
 const { gameState, publicGameState, isRoundActive } = require('../roundState');
-const { beginRound, finishRound, startEvent, resumeEvent, endEvent } = require('../rounds');
+const { beginRound, finishRound, startEvent, resumeEvent, pauseEvent } = require('../rounds');
+const { listAccounts, deleteAccount, setAccountPin } = require('../players');
 
 const router = express.Router();
 
@@ -37,7 +38,9 @@ function control(guard, action) {
   };
 }
 
-const notRunning = () => (gameState.phase === 'round' || gameState.phase === 'break' ? '活動已經進行中。' : null);
+// 進行中＝比賽或休息。'waiting' 與 'paused' 都算停著，可以按「開始」或「繼續」。
+const isRunning = () => gameState.phase === 'round' || gameState.phase === 'break';
+const notRunning = () => (isRunning() ? '活動已經進行中。' : null);
 
 router.get('/admin', (_req, res) => {
   res.sendFile(path.join(PUBLIC_DIR, 'admin.html'));
@@ -109,6 +112,35 @@ router.post('/api/admin/announcements/clear', (req, res) => {
   res.json({ ok: true, removed, announcements: announcements.list() });
 });
 
+/* 玩家帳號 */
+router.post('/api/admin/players', (req, res) => {
+  if (!requireAdmin(req, res)) return;
+  res.json({ ok: true, players: listAccounts() });
+});
+
+router.post('/api/admin/players/delete', (req, res) => {
+  if (!requireAdmin(req, res)) return;
+  try {
+    const removed = deleteAccount(req.body?.nickname);
+    log('player_deleted', removed);
+    res.json({ ok: true, players: listAccounts() });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+router.post('/api/admin/players/reset-pin', (req, res) => {
+  if (!requireAdmin(req, res)) return;
+  try {
+    const changed = setAccountPin(req.body?.nickname, req.body?.pin);
+    // 新的 PIN 刻意不寫進 log。
+    log('player_pin_reset', changed);
+    res.json({ ok: true, players: listAccounts() });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
 router.post('/api/admin/start', control(notRunning, startEvent));
 router.post('/api/admin/resume', control(notRunning, resumeEvent));
 router.post('/api/admin/end-round', control(
@@ -119,9 +151,9 @@ router.post('/api/admin/next-round', control(
   () => (gameState.phase === 'break' ? null : '目前不在休息時間。'),
   beginRound
 ));
-router.post('/api/admin/end', control(
-  () => (gameState.phase === 'waiting' || gameState.phase === 'ended' ? '活動尚未開始或已結束。' : null),
-  endEvent
+router.post('/api/admin/pause', control(
+  () => (isRunning() ? null : '目前沒有進行中的活動可以暫停。'),
+  pauseEvent
 ));
 
 module.exports = router;

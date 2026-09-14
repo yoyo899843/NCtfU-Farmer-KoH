@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>NCtfU 農場</title>
-  <link rel="icon" type="image/jpeg" href="/white_base_logo.jpg">
+  <link rel="icon" type="image/jpeg" href="/images/white_base_logo.jpg">
   <style>
     :root {
       --cream: #f4f5ed;
@@ -96,19 +96,28 @@
     button { padding: 8px 12px; cursor: pointer; border: 1px solid var(--green); background: var(--green-soft); border-radius: 8px; font: inherit; }
     button:disabled { opacity: .5; cursor: not-allowed; }
     input, select { padding: 8px; font: inherit; border: 1px solid var(--line); border-radius: 6px; max-width: 220px; }
-    body.round-inactive #farm-panel button, body.round-inactive #shop-panel button:not(.tab) { pointer-events: none; opacity: .45; }
+    body.round-inactive #farm-panel button, body.round-inactive #hidden-farm-panel button,
+    body.round-inactive #shop-panel button:not(.tab) { pointer-events: none; opacity: .45; }
     #game { display: none; }
+
+    /* 隱藏農地：4×4，格子比主農地小一點才排得下 */
+    #hidden-farm-panel { margin-top: 14px; border-left: 6px solid var(--gold); }
+    .plots-hidden { grid-template-columns: repeat(4, 1fr); }
+    .plots-hidden .plot { min-height: 120px; }
+    .plots-hidden .plot-crop { font-size: 1rem; }
+    .plots-hidden .crop-status { font-size: .8rem; }
 
     @media (max-width: 900px) {
       .layout, .ranks { grid-template-columns: 1fr; }
       .plot { aspect-ratio: auto; min-height: 130px; }
+      .plots-hidden { grid-template-columns: repeat(2, 1fr); }
     }
   </style>
 </head>
 <body>
   <div class="topbar">
     <div class="brand">
-      <img class="logo" src="/small_logo.png" alt="NCtfU logo">
+      <img class="logo" src="/images/small_logo.png" alt="NCtfU logo">
       <h1>NCtfU 農場</h1>
     </div>
     <div class="status">
@@ -161,6 +170,17 @@
         </section>
       </div>
     </div>
+
+    <!--
+      這一區刻意用 hidden 屬性藏起來。hidden 只是「叫瀏覽器不要畫出來」，不是
+      存取控制：在開發人員工具把這個屬性刪掉就看得到，而且伺服器本來就收這些
+      田地的編號，種下去一樣會計分。JS 不會去動這個屬性，刪掉之後不會被加回來。
+    -->
+    <section id="hidden-farm-panel" class="panel" hidden>
+      <h2>實驗農地</h2>
+      <p class="small">這塊地沒有畫在正常畫面上，但它是真的——種下去照樣結算、照樣算分。</p>
+      <div class="plots plots-hidden" id="hidden-plots"></div>
+    </section>
 
     <div class="ranks">
       <section class="panel rank-round">

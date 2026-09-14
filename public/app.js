@@ -53,22 +53,36 @@ function renderStats() {
   $('cumulative-score').textContent = player.cumulativeScore.toLocaleString();
 }
 
+function plotTile(plot, index, labelText) {
+  const label = `<span class="plot-label">${labelText}</span>`;
+  if (!plot) {
+    return `<article class="plot">${label}<span class="plot-crop">空地</span><div class="row">${seedSelect(index)}</div></article>`;
+  }
+  const kind = seed(plot.seedtype);
+  // plantedAt is intentionally exposed as a DOM data attribute so it can be
+  // changed directly in DevTools. The server never validates elapsed time.
+  return `<article class="plot" data-plot-index="${index}" data-planted-at="${plot.plantedAt}" data-grow-seconds="${kind.growSeconds}">${label}<span class="plot-crop">${kind.name}</span><span class="crop-status"></span><button class="harvest-button" disabled>等待成熟</button></article>`;
+}
+
 function renderPlots() {
-  $('plots').innerHTML = player.plots.map((plot, index) => {
-    const label = `<span class="plot-label">田地 ${index + 1}</span>`;
-    if (!plot) {
-      return `<article class="plot">${label}<span class="plot-crop">空地</span><div class="row">${seedSelect(index)}</div></article>`;
-    }
-    const kind = seed(plot.seedtype);
-    // plantedAt is intentionally exposed as a DOM data attribute so it can be
-    // changed directly in DevTools. The server never validates elapsed time.
-    return `<article class="plot" data-plot-index="${index}" data-planted-at="${plot.plantedAt}" data-grow-seconds="${kind.growSeconds}">${label}<span class="plot-crop">${kind.name}</span><span class="crop-status"></span><button class="harvest-button" disabled>等待成熟</button></article>`;
-  }).join('');
+  // 前 visiblePlotCount 格畫在正常農地，其餘畫進用 hidden 藏起來的那一區。
+  // 這裡只寫內容、從不去碰 #hidden-farm-panel 的 hidden 屬性——玩家在
+  // DevTools 刪掉之後，不會被下一次重繪加回去。
+  const visibleCount = config.visiblePlotCount;
+  $('plots').innerHTML = player.plots
+    .slice(0, visibleCount)
+    .map((plot, index) => plotTile(plot, index, `田地 ${index + 1}`))
+    .join('');
+  $('hidden-plots').innerHTML = player.plots
+    .slice(visibleCount)
+    .map((plot, offset) => plotTile(plot, visibleCount + offset, `實驗田 ${offset + 1}`))
+    .join('');
   updateCropTimers();
 }
 
 function updateCropTimers() {
-  document.querySelectorAll('#plots .plot[data-planted-at]').forEach((plotElement) => {
+  // 兩區農地都要跑倒數，所以不限定在 #plots 底下。
+  document.querySelectorAll('.plot[data-planted-at]').forEach((plotElement) => {
     // INTENTIONALLY VULNERABLE: both values are browser-controlled.
     const plantedAt = Number(plotElement.dataset.plantedAt);
     const growMilliseconds = Number(plotElement.dataset.growSeconds) * 1000;
@@ -163,7 +177,7 @@ function renderGameState() {
     waiting: '等待主辦方開始活動',
     round: `第 ${gameState.roundNumber} 局進行中`,
     break: `第 ${gameState.roundNumber} 局已結算，休息中`,
-    ended: `活動已結束，共進行 ${gameState.roundNumber} 局`
+    paused: `第 ${gameState.roundNumber} 局暫停中`
   };
   $('phase-label').textContent = labels[gameState.phase] || '狀態未知';
   const remaining = gameState.phaseEndsAt

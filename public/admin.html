@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>NCtfU 農場管理台</title>
-  <link rel="icon" type="image/jpeg" href="/white_base_logo.jpg">
+  <link rel="icon" type="image/jpeg" href="/images/white_base_logo.jpg">
   <style>
     :root {
       --cream: #f4f5ed; --panel: #fff; --line: #d5dce4; --ink: #1f2a38;
@@ -41,6 +41,13 @@
     #announce-list time { flex: none; font-size: .8rem; color: var(--muted); font-variant-numeric: tabular-nums; }
     #announce-list span { flex: 1; white-space: pre-wrap; overflow-wrap: anywhere; }
     #announce-list button { padding: 4px 10px; font-size: .85rem; }
+    #players-list { list-style: none; margin: 12px 0 0; padding: 0; }
+    #players-list li { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; padding: 8px 0; }
+    #players-list li + li { border-top: 1px dashed var(--line); }
+    #players-list strong { flex: none; }
+    #players-list .info { flex: 1; font-size: .85rem; color: var(--muted); }
+    #players-list button { padding: 4px 10px; font-size: .85rem; }
+    #players-list .offline { opacity: .6; }
     #admin-panel { display: none; }
     .small { font-size: .85rem; color: var(--muted); }
   </style>
@@ -76,14 +83,14 @@
     <section>
       <h2>活動控制</h2>
       <div class="controls">
-        <button id="start-event" class="danger">開始新活動（清除玩家）</button>
-        <button id="resume-event">接續開始（保留累計）</button>
+        <button id="start-event" class="danger">開始（清除玩家）</button>
+        <button id="resume-event">繼續</button>
         <button id="end-round">提早結算本局</button>
         <button id="next-round">提早開始下一局</button>
-        <button id="end-event" class="danger">結束活動</button>
+        <button id="pause-event">暫停</button>
       </div>
       <p class="notice" id="notice" role="status"></p>
-      <p class="small">累計分數存在 SQLite，重新啟動伺服器不會消失。「開始新活動」會刪除所有玩家帳號、PIN、分數與本局資料；伺服器重開後想接續原本的玩家與累計，請用「接續開始」。每局開始都會重置金錢、種子、作物與田地。</p>
+      <p class="small"><strong>「開始」是唯一會清空資料的按鈕</strong>：刪除所有玩家帳號、PIN、累計分數與本局資料，局數歸零從第 1 局開始，按下前會再確認一次。<strong>「暫停」不清任何東西</strong>——它凍結倒數（不算遊戲也不算休息，玩家的錢、種子、田地與本局分數都保持原樣），暫停期間所有種田操作都會被擋下。按「繼續」就從剩下的時間接回原本那一局。暫停後也可以直接按「開始」重來。<br>若伺服器中途重新啟動過，凍結的剩餘時間就沒了，這時「繼續」會用同一個局數重開一局，累計分數仍從資料庫接回來。</p>
     </section>
 
     <section>
@@ -96,6 +103,17 @@
       <p class="notice" id="announce-notice" role="status"></p>
       <ul id="announce-list"></ul>
       <p class="small">玩家頁最多顯示最新 5 則，約 3 秒內同步。公告存在資料庫，重新啟動伺服器不會消失，「開始新活動」也不會清掉。</p>
+    </section>
+
+    <section>
+      <h2>玩家帳號</h2>
+      <div class="login-row">
+        <button id="players-refresh">重新整理</button>
+        <span class="small" id="players-count"></span>
+      </div>
+      <p class="notice" id="players-notice" role="status"></p>
+      <ul id="players-list"></ul>
+      <p class="small">「刪除」會一併清掉該玩家的累計分數、目前連線與本局資料，無法復原；對方的畫面會退回登入頁。忘記 PIN 的人用「重設 PIN」給一組新的六位數字即可，不影響他的分數。清單不會自動更新，操作後或按「重新整理」才重讀。</p>
     </section>
 
     <section>
