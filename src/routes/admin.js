@@ -42,9 +42,12 @@ function control(guard, action) {
 const isRunning = () => gameState.phase === 'round' || gameState.phase === 'break';
 const notRunning = () => (isRunning() ? '活動已經進行中。' : null);
 
-router.get('/admin', (_req, res) => {
-  res.sendFile(path.join(PUBLIC_DIR, 'admin.html'));
-});
+// 管理台拆成三頁，各自一個網址；登入狀態靠瀏覽器的 session token 共用。
+const adminPage = (file) => (_req, res) => res.sendFile(path.join(PUBLIC_DIR, file));
+
+router.get('/admin', adminPage('admin/control.html'));
+router.get('/admin/player', adminPage('admin/player.html'));
+router.get('/admin/announcement', adminPage('admin/announcement.html'));
 
 router.post('/api/admin/login', (req, res) => {
   const username = typeof req.body?.username === 'string' ? req.body.username : '';

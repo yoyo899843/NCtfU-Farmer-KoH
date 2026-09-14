@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>公告管理 — NCtfU 農場管理台</title>
+  <link rel="icon" type="image/jpeg" href="/images/white_base_logo.jpg">
+  <link rel="stylesheet" href="/admin/style.css">
+</head>
+<body>
+  <div class="topbar">
+    <h1>NCtfU 農場管理台</h1>
+    <span class="topbar-right">
+      <a href="/">前往玩家頁面</a>
+      <button id="logout">登出</button>
+    </span>
+  </div>
+
+  <nav class="nav">
+    <a href="/admin">活動控制</a>
+    <a href="/admin/player">玩家管理</a>
+    <a href="/admin/announcement" aria-current="page">公告管理</a>
+  </nav>
+
+  <section id="admin-login">
+    <h2>管理員登入</h2>
+    <div class="login-row">
+      <input id="admin-user" type="text" placeholder="帳號" autocomplete="username">
+      <input id="admin-password" type="password" placeholder="密碼" autocomplete="current-password">
+      <button id="login" class="primary">登入</button>
+    </div>
+    <p><label class="remember"><input id="remember" type="checkbox"> 記住此瀏覽器</label></p>
+    <p class="notice" id="login-error" role="alert"></p>
+  </section>
+
+  <div id="admin-panel">
+    <section>
+      <h2>公告</h2>
+      <textarea id="announce-text" rows="3" maxlength="200" placeholder="發佈給所有玩家看的訊息，例如：下一局 3 分鐘後開始"></textarea>
+      <div class="login-row" style="margin-top:8px">
+        <button id="announce-post" class="primary">發佈</button>
+        <button id="announce-clear" class="danger">全部清除</button>
+      </div>
+      <p class="notice" id="announce-notice" role="status"></p>
+      <ul id="announce-list" class="record-list"></ul>
+      <p class="small">玩家頁最多顯示最新 5 則，約 3 秒內同步。公告存在資料庫，重新啟動伺服器不會消失，「開始」也不會清掉。</p>
+    </section>
+  </div>
+
+  <script src="/admin/common.js"></script>
+  <script src="/admin/announcement.js"></script>
+</body>
+</html>

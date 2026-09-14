@@ -14,7 +14,9 @@ const { plantings } = require('./src/players');
 
 const app = express();
 app.use(express.json());
-app.use(express.static(PUBLIC_DIR));
+// redirect:false —— public/admin/ 是個目錄，預設的 serve-static 會把 GET /admin
+// 301 轉到 /admin/，網址列跟著變。關掉之後目錄請求直接往下交給路由處理。
+app.use(express.static(PUBLIC_DIR, { redirect: false }));
 app.use(require('./src/routes/player'));
 app.use(require('./src/routes/farm'));
 app.use(require('./src/routes/admin'));

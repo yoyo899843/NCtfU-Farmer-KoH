@@ -96,8 +96,17 @@ src/
     admin.js           /admin 頁面與 /api/admin/*（含公告與時間設定）
     bonus.js           /extrabigbonus 隱藏加分頁與 /api/bonus
 scripts/add-admin.js   管理員帳號維護工具
-public/                玩家與管理台前端（index/admin/extrabigbonus 與 robots.txt）
-  images/              logo 等圖片，網址是 /images/<檔名>
+public/
+  index.html · app.js          玩家頁
+  extrabigbonus.html           robots.txt 洩漏的隱藏加分頁
+  robots.txt
+  admin/                       管理台，資料夾結構對齊 /admin/* 網址
+    style.css                  三頁共用樣式
+    common.js                  三頁共用的登入閘門與 session
+    control.html · control.js  /admin　活動控制與時間設定
+    player.html · player.js    /admin/player　玩家帳號管理
+    announcement.html · .js    /admin/announcement　公告管理
+  images/                      logo 等圖片，網址是 /images/<檔名>
 ```
 
 相依方向是單向的：`routes/` → `rounds`／`players`／`admins` → `roundState`／`db` → `migrations`／`config`。`roundState.js` 之所以獨立出來，是因為 `players.js` 要知道現在是不是比賽中（才能算累計分數），而 `rounds.js` 要修改這些欄位——把純狀態抽出來，兩邊都只依賴它，避免互相 require。
