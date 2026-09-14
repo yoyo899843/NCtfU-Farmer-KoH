@@ -2,13 +2,26 @@
 :root {
   --cream: #f4f5ed; --panel: #fff; --line: #d5dce4; --ink: #1f2a38;
   --muted: #526276; --green: #42566e; --green-soft: #e7edf3;
-  font-family: system-ui, "Noto Sans TC", sans-serif; color: var(--ink); background: var(--cream);
+
+  /* 與玩家頁共用同一組字型：拉丁字母與數字走 Fredoka／Nunito，中文交給系統字型 */
+  --font-display: 'Fredoka', 'Noto Sans TC', system-ui, sans-serif;
+  --font-body: 'Nunito', 'Noto Sans TC', system-ui, sans-serif;
+  --text-xs: 12px; --text-sm: 14px; --text-base: 16px;
+  --text-lg: 18px; --text-xl: 24px; --text-2xl: 32px;
+  --space-1: 4px; --space-2: 8px; --space-3: 12px;
+  --space-4: 16px; --space-6: 24px; --space-8: 32px;
+  --radius-sm: 6px; --radius-md: 8px; --radius-lg: 12px; --radius-xl: 16px;
+
+  font-family: var(--font-body); color: var(--ink); background: var(--cream);
 }
 * { box-sizing: border-box; }
-body { max-width: 760px; margin: 0 auto; padding: 16px; }
+body { max-width: 760px; margin: 0 auto; padding: var(--space-4); font-size: var(--text-base); line-height: 1.6; }
+h1, h2 { font-family: var(--font-display); line-height: 1.25; }
+/* 鍵盤使用者需要看得見的焦點框 */
+:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; border-radius: var(--radius-sm); }
 
 .topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: #42566e; color: #fff; border-radius: 12px; padding: 14px 18px; }
-.topbar h1 { margin: 0; font-size: 1.3rem; letter-spacing: .05em; }
+.topbar h1 { margin: 0; font-size: var(--text-xl); font-weight: 600; letter-spacing: .05em; }
 .topbar a { color: #e4ebf3; font-size: .9rem; }
 .topbar-right { display: flex; align-items: center; gap: 12px; }
 .topbar button { padding: 6px 12px; font-size: .85rem; }
@@ -32,7 +45,8 @@ button.danger { border-color: #991b1b; background: #fee2e2; }
 button:disabled { opacity: .45; cursor: not-allowed; }
 textarea { width: 100%; padding: 10px 12px; font: inherit; border: 1px solid var(--line); border-radius: 8px; resize: vertical; }
 
-#status { font-size: 1.2rem; font-weight: 700; margin: 0 0 6px; }
+#status { font-family: var(--font-display); font-size: var(--text-lg); font-weight: 600; margin: 0 0 var(--space-1); }
+.metrics strong { font-family: var(--font-display); font-size: var(--text-lg); font-weight: 600; font-variant-numeric: tabular-nums; }
 #countdown { margin: 0; color: var(--muted); font-variant-numeric: tabular-nums; }
 .notice { min-height: 1.5em; color: #92400e; }
 .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 14px; }

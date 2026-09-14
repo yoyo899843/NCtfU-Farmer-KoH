@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>NCtfU 農場</title>
   <link rel="icon" type="image/png" href="/images/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@300;400;500;600;700&display=swap">
   <style>
     :root {
       --cream: #f4f5ed;
@@ -18,13 +21,34 @@
       --soil-line: #9b754e;
       --gold: #b4881f;
       --gold-soft: #fbf1d8;
-      font-family: system-ui, "Noto Sans TC", sans-serif;
+
+      /* 字型：Fredoka／Nunito 只涵蓋拉丁字母與數字，中文交給系統字型。
+         兩者都經 Google Fonts CDN 載入（display=swap，避免字型未到時空白）。*/
+      --font-display: 'Fredoka', 'Noto Sans TC', system-ui, sans-serif;
+      --font-body: 'Nunito', 'Noto Sans TC', system-ui, sans-serif;
+
+      /* 字級（12/14/16/18/24/32）*/
+      --text-xs: 12px; --text-sm: 14px; --text-base: 16px;
+      --text-lg: 18px; --text-xl: 24px; --text-2xl: 32px;
+
+      /* 4/8 節奏的間距 */
+      --space-1: 4px; --space-2: 8px; --space-3: 12px;
+      --space-4: 16px; --space-6: 24px; --space-8: 32px;
+
+      /* 圓角 */
+      --radius-sm: 6px; --radius-md: 8px; --radius-lg: 12px; --radius-xl: 16px;
+
+      font-family: var(--font-body);
       color: var(--ink);
       background: var(--cream);
     }
     * { box-sizing: border-box; }
-    body { max-width: 1120px; margin: 0 auto; padding: 16px; }
-    h2 { margin: 0 0 12px; font-size: 1.05rem; letter-spacing: .04em; }
+    /* 16px 是行動裝置的下限，低於它 iOS 會在點輸入框時自動放大 */
+    body { max-width: 1120px; margin: 0 auto; padding: var(--space-4); font-size: var(--text-base); line-height: 1.6; }
+    h1, h2, h3 { font-family: var(--font-display); line-height: 1.25; }
+    h2 { margin: 0 0 var(--space-3); font-size: var(--text-lg); font-weight: 600; letter-spacing: .04em; }
+    /* 鍵盤使用者需要看得見的焦點框；:focus-visible 不會干擾滑鼠點擊 */
+    :focus-visible { outline: 2px solid var(--green); outline-offset: 2px; border-radius: var(--radius-sm); }
     .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
     .small { font-size: .85rem; color: var(--muted); }
 
@@ -35,7 +59,7 @@
       color: #fff; border-radius: 12px; padding: 14px 18px; margin-bottom: 14px;
     }
     .brand { display: flex; align-items: center; gap: 12px; }
-    .topbar h1 { margin: 0; font-size: 1.5rem; letter-spacing: .06em; }
+    .topbar h1 { margin: 0; font-size: var(--text-xl); font-weight: 600; letter-spacing: .06em; }
     .logo { width: 38px; height: 38px; display: block; object-fit: contain; padding: 3px; background: #fff; border-radius: 8px; }
 
     /* 活動狀態（標題列右側）*/
@@ -87,7 +111,8 @@
     /* 玩家資訊 */
     .stat { display: flex; align-items: baseline; justify-content: space-between; padding: 6px 0; }
     .stat + .stat { border-top: 1px dashed var(--line); }
-    .stat b { font-size: 1.25rem; font-variant-numeric: tabular-nums; }
+    /* 數字用等寬字形，倒數與分數跳動時欄位不會左右晃 */
+    .stat b { font-family: var(--font-display); font-size: var(--text-xl); font-weight: 600; font-variant-numeric: tabular-nums; }
     .player-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
     #welcome { display: block; font-size: 1.2rem; font-weight: 700; }
     #logout-player { padding: 5px 10px; font-size: .85rem; background: #fff; }

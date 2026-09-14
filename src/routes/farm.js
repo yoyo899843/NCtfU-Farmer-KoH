@@ -15,7 +15,7 @@ const { getPlayer, plantings } = require('../players');
 const router = express.Router();
 
 function shopPage(message) {
-  return `<!doctype html><meta charset="utf-8"><title>農場商店</title><link rel="icon" type="image/png" href="/images/favicon.png"><style>body{font:18px system-ui;max-width:42rem;margin:4rem auto;padding:0 1rem}a{color:#42566e}</style><h1>農場商店</h1><p>${message}</p><p><a href="/">回到遊戲</a></p><script>window.opener?.postMessage({type:'farmer-purchase-complete'}, location.origin)</script>`;
+  return `<!doctype html><meta charset="utf-8"><title>農場商店</title><link rel="icon" type="image/png" href="/images/favicon.png"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@300;400;500;600;700&display=swap"><style>body{font:16px/1.6 'Nunito','Noto Sans TC',system-ui,sans-serif;max-width:42rem;margin:4rem auto;padding:0 1rem}h1{font-family:'Fredoka','Noto Sans TC',system-ui,sans-serif;font-weight:600;line-height:1.25}a{color:#42566e}:focus-visible{outline:2px solid #42566e;outline-offset:2px}</style><h1>農場商店</h1><p>${message}</p><p><a href="/">回到遊戲</a></p><script>window.opener?.postMessage({type:'farmer-purchase-complete'}, location.origin)</script>`;
 }
 
 const validPlot = (plotIndex) => Number.isInteger(plotIndex) && plotIndex >= 0 && plotIndex < PLOT_COUNT;
