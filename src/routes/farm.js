@@ -15,7 +15,7 @@ const { getPlayer, plantings } = require('../players');
 const router = express.Router();
 
 function shopPage(message) {
-  return `<!doctype html><meta charset="utf-8"><title>農場商店</title><link rel="icon" type="image/jpeg" href="/images/white_base_logo.jpg"><style>body{font:18px system-ui;max-width:42rem;margin:4rem auto;padding:0 1rem}a{color:#42566e}</style><h1>農場商店</h1><p>${message}</p><p><a href="/">回到遊戲</a></p><script>window.opener?.postMessage({type:'farmer-purchase-complete'}, location.origin)</script>`;
+  return `<!doctype html><meta charset="utf-8"><title>農場商店</title><link rel="icon" type="image/png" href="/images/favicon.png"><style>body{font:18px system-ui;max-width:42rem;margin:4rem auto;padding:0 1rem}a{color:#42566e}</style><h1>農場商店</h1><p>${message}</p><p><a href="/">回到遊戲</a></p><script>window.opener?.postMessage({type:'farmer-purchase-complete'}, location.origin)</script>`;
 }
 
 const validPlot = (plotIndex) => Number.isInteger(plotIndex) && plotIndex >= 0 && plotIndex < PLOT_COUNT;
