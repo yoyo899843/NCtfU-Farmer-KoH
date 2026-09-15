@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NCtfU 農場 — 即時戰況</title>
+  <link rel="icon" type="image/png" href="/images/favicon.png">
+  <link rel="stylesheet" href="/scoreboard.css">
+</head>
+<body data-phase="waiting">
+  <main class="wallboard">
+    <header class="wallboard-header">
+      <div class="brand">
+        <img src="/images/small_logo.png" alt="NCtfU">
+        <div>
+          <p class="eyebrow">NCtfU FARM BATTLE</p>
+          <h1>農場即時戰況</h1>
+        </div>
+      </div>
+      <div class="header-actions">
+        <span id="connection" class="connection"><span aria-hidden="true"></span><span id="connection-text">連線中</span></span>
+        <button id="fullscreen" type="button" aria-label="切換全螢幕">進入全螢幕</button>
+      </div>
+    </header>
+
+    <section class="match-strip" aria-label="目前比賽狀態">
+      <div class="match-stat round-stat">
+        <span>ROUND</span>
+        <strong id="round-number">0</strong>
+      </div>
+      <div class="match-stat phase-stat">
+        <span>STATUS</span>
+        <strong id="phase-label">等待主辦方開始</strong>
+      </div>
+      <div class="match-stat countdown-stat">
+        <span id="countdown-caption">TIME LEFT</span>
+        <strong id="countdown">—</strong>
+      </div>
+      <div class="match-stat players-stat">
+        <span>PLAYERS</span>
+        <strong id="player-count">0 / 50</strong>
+      </div>
+    </section>
+
+    <section class="leaderboards" aria-label="即時排行榜">
+      <article class="leaderboard round-board">
+        <header>
+          <div>
+            <p>THIS ROUND</p>
+            <h2>本局排行</h2>
+          </div>
+          <span class="board-tag">LIVE</span>
+        </header>
+        <ol id="round-leaderboard" class="ranking-list">
+          <li class="empty">讀取中…</li>
+        </ol>
+      </article>
+
+      <article class="leaderboard total-board">
+        <header>
+          <div>
+            <p>OVERALL</p>
+            <h2>累計排行</h2>
+          </div>
+          <span class="board-tag">TOTAL</span>
+        </header>
+        <ol id="cumulative-leaderboard" class="ranking-list">
+          <li class="empty">讀取中…</li>
+        </ol>
+      </article>
+    </section>
+
+    <footer>
+      <span>排行榜顯示前三名</span>
+      <span id="last-updated">等待資料同步</span>
+    </footer>
+  </main>
+  <script src="/scoreboard.js"></script>
+</body>
+</html>

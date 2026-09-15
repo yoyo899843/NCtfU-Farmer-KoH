@@ -1,9 +1,10 @@
 /*
  * 玩家端的讀取與登入：設定、活動狀態、註冊／登入、自己的狀態、排行榜。
  */
+const path = require('path');
 const express = require('express');
 const {
-  SEEDS, MAX_PLAYERS, MAX_NICKNAME_LENGTH, STARTING_MONEY, STARTING_SCORE,
+  PUBLIC_DIR, SEEDS, MAX_PLAYERS, MAX_NICKNAME_LENGTH, STARTING_MONEY, STARTING_SCORE,
   VISIBLE_PLOT_COUNT, HIDDEN_PLOT_COUNT, PLOT_COUNT
 } = require('../config');
 const { log } = require('../log');
@@ -14,6 +15,11 @@ const {
 } = require('../players');
 
 const router = express.Router();
+
+// 公開唯讀的大螢幕戰況頁；不需要讓投影用的瀏覽器持有管理員 token。
+router.get('/scoreboard', (_req, res) => {
+  res.sendFile(path.join(PUBLIC_DIR, 'scoreboard.html'));
+});
 
 router.get('/api/config', (_req, res) => {
   res.json({
