@@ -68,12 +68,6 @@
     }
   }
 
-  function setConnection(kind, text) {
-    $('connection').className = `connection ${kind}`;
-    $('connection-text').textContent = text;
-    document.body.classList.toggle('offline', kind === 'offline');
-  }
-
   async function sync() {
     if (syncing) return;
     syncing = true;
@@ -93,9 +87,10 @@
       renderLeaderboard('cumulative-leaderboard', leaderboard.cumulativeLeaderboard);
       $('player-count').textContent = `${leaderboard.playerCount} / ${leaderboard.maxPlayers}`;
       $('last-updated').textContent = `最後同步 ${new Date().toLocaleTimeString('zh-TW', { hour12: false })}`;
-      setConnection('online', '即時連線');
+      document.body.classList.remove('offline');
     } catch (_error) {
-      setConnection('offline', '連線中斷・自動重試');
+      document.body.classList.add('offline');
+      $('last-updated').textContent = '連線中斷・正在自動重試';
     } finally {
       syncing = false;
     }
